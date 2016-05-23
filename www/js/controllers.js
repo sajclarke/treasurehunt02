@@ -82,8 +82,14 @@ angular.module('starter.controllers', ['starter.services','firebase'])
   //TODO: Move this to services
   var markers = Points.all();
 
-  $scope.init =function(){
+  $ionicLoading.show({
+      template: 'Loading map points....'
+    });
+
+  markers.$loaded().then(function(markers) {
+
         console.log("Load data from firebase and initialize map");
+        console.log(markers);
 
         var myLatlng = new google.maps.LatLng(13.1704468,-59.6357891); //Sandy Lane Golf Course lol
 
@@ -92,18 +98,33 @@ angular.module('starter.controllers', ['starter.services','firebase'])
           zoom: 12,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
+
         var map = new google.maps.Map(document.getElementById("map"),mapOptions);
 
         //Detect user's location
         navigator.geolocation.getCurrentPosition(function(pos) {
 
+          console.log("user location found");
 
+            //Set map location
             map.setCenter(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
-            // var myLocation = new google.maps.Marker({
-            //     position: new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude),
-            //     map: map,
-            //     title: "My Location"
-            // });
+
+            //Add map marker
+            var myLocation = new google.maps.Marker({
+                position: new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude),
+                map: map,
+                title: "My Location"
+            });
+
+            //Add infowindow
+            var infowindow = new google.maps.InfoWindow({
+              content: "You Are Here!"
+            });
+
+            //Display infowindow when user clicks on map marker
+            google.maps.event.addListener(myLocation, 'click', function() {
+              infowindow.open(map,myLocation);
+            });
         });
 
 
@@ -132,14 +153,12 @@ angular.module('starter.controllers', ['starter.services','firebase'])
 
         }
 
-        console.log("Load map");
+        console.log("Load map div");
         $scope.map = map;
-    };
 
+        $ionicLoading.hide();
+    });
 
-    // google.maps.event.addDomListener(window, 'load', init);
-
-    // google.maps.event.addDomListener(window, 'load', initialize);
 
     $scope.centerOnMe = function() {
         if(!$scope.map) {
@@ -196,30 +215,7 @@ angular.module('starter.controllers', ['starter.services','firebase'])
 
   console.log($scope.point);
 
-  /*function showLocation() {
 
-      var myLatlng = new google.maps.LatLng($scope.point.latitude,$scope.point.longitude);
-
-      var mapOptions = {
-        center: myLatlng,
-        zoom: 16,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-      };
-      var map = new google.maps.Map(document.getElementById("point_location"),mapOptions);
-
-      //Marker + infowindow + angularjs compiled ng-click
-
-
-      var marker = new google.maps.Marker({
-        position: myLatlng,
-        map: map,
-        title: $scope.point.title
-      });
-
-      $scope.map = map;
-    }
-
-    google.maps.event.addDomListener(window, 'load', showLocation);*/
 
   $ionicModal.fromTemplateUrl('templates/modal-newComment.html', {
     scope: $scope
@@ -237,11 +233,12 @@ angular.module('starter.controllers', ['starter.services','firebase'])
     $scope.commentmodal.hide();
   };
 
-  var timeInMs = Date.now();
+  var timeInMs = Date.now(); //Get time in milliseconds
   console.log(timeInMs);
   $scope.comment = [{
     text:'',
     point_id:'',
+    comment_author:userinfo._id,
     comment_date: timeInMs
   }];
 

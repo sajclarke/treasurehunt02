@@ -13,7 +13,7 @@ angular.module('starter.services', ['firebase'])
    console.log(points.length); // data is loaded here
    if(points.length == 0){
 
-     console.log('load fresh');
+     console.log('Setup Firebase database');
 
      var fb = new Firebase(appConfig.FirebaseUrl);
      fb.set(
@@ -46,8 +46,11 @@ angular.module('starter.services', ['firebase'])
      });
 
      var points = $firebaseArray(data.child("points"));
+     window.localStorage.setItem("points_data", JSON.stringify(points));
      console.log("Loading new points data", points);
 
+   }else{
+     window.localStorage.setItem("points_data", JSON.stringify(points));
    }
   });
 
@@ -63,7 +66,7 @@ angular.module('starter.services', ['firebase'])
   // points = $firebaseArray(points_data);
 
 
-  window.localStorage.setItem("points_data", JSON.stringify(points));
+
 
   // localStorageService.set('pointsData', points);
 
