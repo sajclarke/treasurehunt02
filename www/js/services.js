@@ -116,8 +116,6 @@ angular.module('starter.services', ['firebase'])
   return {
 		all:function(pointId) {
 
-
-
       var comments = $firebaseArray(data.child("comments"));
 
       console.log("Getting comments for point ID:"+pointId);
@@ -125,11 +123,14 @@ angular.module('starter.services', ['firebase'])
       //TODO: Fix to select correct comments for chosen point
       // if(comments.length)
 
-      var arr_comments = comments;
+      var arr_comments = null;
 
-      comments.$loaded().then(function(commentss) {
+      comments.$loaded().then(function(comments) {
+
+        arr_comments = comments;
+
          console.log("Number of comments",comments.length); // data is loaded here
-         var num_comments = comments.length;
+         var num_comments = comments.length-1;
          for(var i=0;i<num_comments;i++){
 
            pointId = parseInt(pointId);
@@ -146,13 +147,15 @@ angular.module('starter.services', ['firebase'])
           //  console.log(comments[i].text);
          }
 
+         return arr_comments;
+
       });
 
 
 
       // arr_comments = comments;
       // console.log(arr_comments);
-      return arr_comments;
+
 
     }
   }
